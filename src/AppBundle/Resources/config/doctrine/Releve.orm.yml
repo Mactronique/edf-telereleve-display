@@ -1,0 +1,41 @@
+AppBundle\Entity\Releve:
+    type: entity
+    table: releve
+    id:
+        at:
+            type: text
+            nullable: true
+            length: null
+            options:
+                fixed: false
+            id: true
+            generator:
+                strategy: IDENTITY
+    fields:
+        ptec:
+            type: text
+            nullable: true
+            length: null
+            options:
+                fixed: false
+        iinst:
+            type: float
+            nullable: true
+            precision: 10
+            scale: 0
+        hchc:
+            type: float
+            nullable: true
+            precision: 10
+            scale: 0
+        hchp:
+            type: float
+            nullable: true
+            precision: 10
+            scale: 0
+        base:
+            type: float
+            nullable: true
+            precision: 10
+            scale: 0
+    lifecycleCallbacks: {  }

@@ -1,0 +1,126 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div>Borne des données : <span id="bornes-start"></span> au <span id="bornes-end"></span>
+<div>Voir : <input type="date" id="datevoir" value="" required="required"> <button id="afficher">Afficher</button></div>
+<div id="container"></div>
+<div> Soit un total de <span id="consohc"></span>kWh en heures creuse et <span id="consohp"></span>kWh en heures pleines, soit un total de <span id="consoperiode"></span>kWh sur la période affiché.</div>
+{% endblock %}
+
+{% block javascripts %}
+<script   src="https://code.jquery.com/jquery-1.12.4.min.js"   integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="   crossorigin="anonymous"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script type="text/javascript">
+
+    options = {
+        chart: {
+            renderTo: 'container',
+            type: 'line'
+        },
+        title: {
+            text: 'Consommation'
+        },
+        subtitle: {
+            text: 'Source: EDF'
+        },
+        xAxis: {
+            
+        },
+        yAxis: {
+            title: {
+                text: 'Wh'
+            }
+        },
+        plotOptions: {
+            line: {
+                dataLabels: {
+                    enabled: true
+                },
+                enableMouseTracking: false
+            }
+        },
+        series: [{
+            name: 'Heures Creuses',
+            data: []
+        }, {
+            name: 'Heures Pleines',
+            data: []
+        }, {
+            name: 'Intensité instanée',
+            data: []
+        }]
+    };
+    chart = new Highcharts.Chart(options);
+function loadData(date){
+    $.ajax({
+    url: '/datas?date='+date,
+    datatype: "json",
+    success: function(data) 
+    {
+           options.series[0].data = data.datas['HC'];
+           options.series[1].data = data.datas['HP'];
+           options.series[2].data = data.datas['I'];
+           options.xAxis.categories = data.datas['xAxis'];
+           options.title.text = 'Consommation du '+data.borne_datas.start+' au '+data.borne_datas.end;
+           chart = new Highcharts.Chart(options);
+
+           $('#bornes-start').html(data.borne_globales.start);
+           $('#bornes-end').html(data.borne_globales.end);
+           $('#consohc').html(data.total_datas.hc/1000);
+           $('#consohp').html(data.total_datas.hp/1000);
+           $('#consoperiode').html((data.total_datas.hp+data.total_datas.hc)/1000);
+           
+    },      
+    });
+};
+var today = new Date();
+var dd = today.getDate();
+var mm = today.getMonth()+1; //January is 0!
+var yyyy = today.getFullYear();
+
+if(dd<10) {
+    dd='0'+dd;
+} 
+
+if(mm<10) {
+    mm='0'+mm;
+} 
+
+loadData(yyyy+'-'+mm+'-'+dd);
+
+$('#afficher').on('click', function(evt){
+evt.preventDefault();
+    loadData($("#datevoir").val());
+});
+
+</script>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+    body { background: #F5F5F5; font: 18px/1.5 sans-serif; }
+    h1, h2 { line-height: 1.2; margin: 0 0 .5em; }
+    h1 { font-size: 36px; }
+    h2 { font-size: 21px; margin-bottom: 1em; }
+    p { margin: 0 0 1em 0; }
+    a { color: #0000F0; }
+    a:hover { text-decoration: none; }
+    code { background: #F5F5F5; max-width: 100px; padding: 2px 6px; word-wrap: break-word; }
+    #wrapper { background: #FFF; margin: 1em auto; max-width: 800px; width: 95%; }
+    #container { padding: 2em; }
+    #welcome, #status { margin-bottom: 2em; }
+    #welcome h1 span { display: block; font-size: 75%; }
+    #icon-status, #icon-book { float: left; height: 64px; margin-right: 1em; margin-top: -4px; width: 64px; }
+    #icon-book { display: none; }
+
+    @media (min-width: 768px) {
+        #wrapper { width: 80%; margin: 2em auto; }
+        #icon-book { display: inline-block; }
+        #status a, #next a { display: block; }
+
+        @-webkit-keyframes fade-in { 0% { opacity: 0; } 100% { opacity: 1; } }
+        @keyframes fade-in { 0% { opacity: 0; } 100% { opacity: 1; } }
+        .sf-toolbar { opacity: 0; -webkit-animation: fade-in 1s .2s forwards; animation: fade-in 1s .2s forwards;}
+    }
+</style>
+{% endblock %}
