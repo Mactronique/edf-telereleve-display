@@ -24,6 +24,13 @@ $report->addField(new atoum\report\fields\runner\atoum\logo());
 $report->addField(new atoum\report\fields\runner\result\logo());
 */
 
+$report->addField(new atoum\report\fields\runner\result\logo());
+
+$script->addReport($report);
+
+
+$script->addTestsFromDirectory(__DIR__.'/tests');
+
 /*
 CODE COVERAGE SETUP
 
@@ -65,3 +72,4 @@ $testGenerator->setRunnerPath('path/to/your/tests/units/runner.php');
 
 $script->getRunner()->setTestGenerator($testGenerator);
 */
+
